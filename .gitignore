@@ -123,3 +123,10 @@ bash tests/dlq_test.sh
 **Date:** February 2025  
 **Assignment:** Fog & Edge Computing (NCI College)  
 **Status:** Production-ready ✅
+
+venv/
+__pycache__/
+*.pyc
+node_modules/
+.env.local
+
