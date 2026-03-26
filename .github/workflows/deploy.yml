@@ -1,0 +1,205 @@
+name: Deploy Smart Traffic Platform
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-asyncio flake8 requests pydantic fastapi
+          pip install -r sensors/requirements.txt
+          pip install -r fog/requirements.txt
+      
+      - name: Lint with flake8
+        run: |
+          flake8 sensors/ fog/ cloud/lambdas/ --count --select=E9,F63,F7,F82 --show-source --statistics
+      
+      - name: Run unit tests
+        run: |
+          pytest tests/test_fog_analytics.py -v
+          pytest tests/test_integration.py -v
+          pytest tests/test_spool_store.py -v
+          pytest tests/test_retry_backoff.py -v
+          pytest tests/test_outage_recovery_integration.py -v
+
+  build-lambdas:
+    runs-on: ubuntu-latest
+    needs: lint-test
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build Lambda packages
+        run: |
+          cd cloud/lambdas
+          
+          mkdir build_aggregates
+          cp process_aggregates.py build_aggregates/
+          cd build_aggregates && zip -r ../process_aggregates.zip . && cd ..
+          
+          mkdir build_events
+          cp process_events.py build_events/
+          cd build_events && zip -r ../process_events.zip . && cd ..
+          
+          mkdir build_api
+          cp dashboard_api.py build_api/
+          cd build_api && zip -r ../dashboard_api.zip . && cd ..
+      
+      - name: Upload Lambda artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: lambda-packages
+          path: cloud/lambdas/*.zip
+
+  deploy-infrastructure:
+    runs-on: ubuntu-latest
+    needs: build-lambdas
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download Lambda artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: lambda-packages
+          path: cloud/lambdas/
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+      
+      - name: Terraform Init
+        run: |
+          cd cloud/terraform
+          terraform init
+      
+      - name: Terraform Plan
+        run: |
+          cd cloud/terraform
+          terraform plan -out=tfplan
+      
+      - name: Terraform Apply
+        run: |
+          cd cloud/terraform
+          terraform apply -auto-approve tfplan
+
+  build-dashboard:
+    runs-on: ubuntu-latest
+    needs: lint-test
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: |
+          cd dashboard
+          npm install
+      
+      - name: Build dashboard
+        run: |
+          cd dashboard
+          npm run build
+      
+      - name: Upload dashboard artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dashboard-build
+          path: dashboard/build/
+
+  deploy-dashboard:
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure, build-dashboard]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download dashboard build
+        uses: actions/download-artifact@v3
+        with:
+          name: dashboard-build
+          path: dashboard/build/
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Deploy to S3
+        run: |
+          aws s3 sync dashboard/build/ s3://smart-traffic-dashboard-${{ secrets.AWS_ACCOUNT_ID }}/ --delete
+      
+      - name: Invalidate CloudFront
+        run: |
+          DIST_ID=$(aws cloudfront list-distributions --query "DistributionList.Items[0].Id" --output text)
+          aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"
+
+  smoke-test:
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure, deploy-dashboard]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      
+      - name: Test API endpoints
+        run: |
+          API_ENDPOINT=$(cd cloud/terraform && terraform output -raw api_gateway_endpoint)
+          
+          # Test aggregates endpoint
+          curl -f "${API_ENDPOINT}/api/aggregates?junctionId=Junction-A&hours=1" || exit 1
+          
+          # Test events endpoint
+          curl -f "${API_ENDPOINT}/api/events?junctionId=Junction-A&limit=10" || exit 1
+          
+          # Test summary endpoint
+          curl -f "${API_ENDPOINT}/api/summary?junctionId=Junction-A&minutes=60" || exit 1
+          
+          # Test health
+          curl -f "${API_ENDPOINT}/api/health" || exit 1
+          
+          echo "Smoke tests passed!"

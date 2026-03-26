@@ -1,0 +1,148 @@
+---
+# Sensor Simulator Configuration
+
+junctions:
+  - id: "Junction-A"
+    latitude: 53.3426
+    longitude: -6.2543
+    sensors:
+      - name: vehicle_count
+        type: "INTEGER"
+        unit: "vehicles/min"
+        frequency_hz: 10
+        jitter_ms: 50
+        baseline_min: 10
+        baseline_max: 80
+        rush_hour_multiplier: 3.5
+        scenario: "daily_pattern_with_incidents"
+      
+      - name: vehicle_speed
+        type: "FLOAT"
+        unit: "km/h"
+        frequency_hz: 10
+        jitter_ms: 100
+        baseline_mean: 50
+        baseline_std: 15
+        min_bound: 0
+        max_bound: 160
+        scenario: "daily_pattern_with_incidents"
+      
+      - name: rain_intensity
+        type: "CATEGORICAL"
+        unit: "mm/h"
+        frequency_hz: 1
+        jitter_ms: 200
+        categories: ["none", "light", "heavy"]
+        baseline_distribution: [0.7, 0.2, 0.1]
+        scenario: "random_weather"
+      
+      - name: ambient_light
+        type: "FLOAT"
+        unit: "lux"
+        frequency_hz: 5
+        jitter_ms: 150
+        baseline_day: 50000
+        baseline_night: 100
+        scenario: "circadian_pattern"
+      
+      - name: pollution_pm25
+        type: "FLOAT"
+        unit: "µg/m³"
+        frequency_hz: 2
+        jitter_ms: 200
+        baseline_mean: 25
+        baseline_std: 10
+        min_bound: 5
+        max_bound: 200
+        scenario: "traffic_correlated"
+
+  - id: "Junction-B"
+    latitude: 53.3450
+    longitude: -6.2500
+    sensors:
+      - name: vehicle_count
+        type: "INTEGER"
+        unit: "vehicles/min"
+        frequency_hz: 10
+        jitter_ms: 50
+        baseline_min: 15
+        baseline_max: 100
+        rush_hour_multiplier: 4.0
+        scenario: "daily_pattern_with_incidents"
+      
+      - name: vehicle_speed
+        type: "FLOAT"
+        unit: "km/h"
+        frequency_hz: 10
+        jitter_ms: 100
+        baseline_mean: 45
+        baseline_std: 12
+        min_bound: 0
+        max_bound: 160
+        scenario: "daily_pattern_with_incidents"
+      
+      - name: rain_intensity
+        type: "CATEGORICAL"
+        unit: "mm/h"
+        frequency_hz: 1
+        jitter_ms: 200
+        categories: ["none", "light", "heavy"]
+        baseline_distribution: [0.7, 0.2, 0.1]
+        scenario: "random_weather"
+      
+      - name: ambient_light
+        type: "FLOAT"
+        unit: "lux"
+        frequency_hz: 5
+        jitter_ms: 150
+        baseline_day: 50000
+        baseline_night: 100
+        scenario: "circadian_pattern"
+      
+      - name: pollution_pm25
+        type: "FLOAT"
+        unit: "µg/m³"
+        frequency_hz: 2
+        jitter_ms: 200
+        baseline_mean: 30
+        baseline_std: 12
+        min_bound: 5
+        max_bound: 200
+        scenario: "traffic_correlated"
+
+# Incident scenarios
+incidents:
+  - name: "morning_rush_speedup"
+    start_hour: 7
+    duration_minutes: 45
+    junction: "both"
+    effect_on_speed: "reduce_30"  # reduce avg speed by 30%
+    effect_on_count: "increase_200"  # increase by 200%
+  
+  - name: "evening_rush_peak"
+    start_hour: 17
+    duration_minutes: 60
+    junction: "both"
+    effect_on_speed: "reduce_25"
+    effect_on_count: "increase_250"
+  
+  - name: "random_accident_A"
+    probability_per_minute: 0.05  # 5% chance each minute
+    junction: "Junction-A"
+    duration_minutes: 5
+    effect_on_speed: "reduce_50"  # speed drops 50%
+    effect_on_count: "increase_150"
+
+# Simulation modes
+simulation:
+  mode: "normal"  # "normal" | "burst_load_test"
+  time_acceleration_factor: 1.0  # 1 = real-time, 60 = 1 hour per minute
+  start_time: "08:00"  # HH:MM
+  duration_hours: 24
+
+# Output destination
+output:
+  fog_endpoint_a: "http://fog-node-a:8001/ingest"
+  fog_endpoint_b: "http://fog-node-b:8002/ingest"
+  batch_size: 1
+  use_batch_endpoint: false
