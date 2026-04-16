@@ -1,0 +1,15 @@
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #0a1628;
+}
+.main-content {
+  flex: 1;
+  margin-left: 64px;
+  padding: 0;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+@media (max-width: 768px) {
+  .main-content { margin-left: 0; }
+}

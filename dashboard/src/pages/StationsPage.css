@@ -1,0 +1,56 @@
+/* ═══ Stations — Comparison ═══ */
+.sp { padding: 24px 28px 40px; }
+.sp-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.sp-h1 { font-size: 20px; font-weight: 700; color: #f5f5f5; }
+.sp-actions { display: flex; align-items: center; gap: 10px; }
+
+/* Comparison Table */
+.comp-table-wrap {
+  background: #0f1d32;
+  border: 1px solid #1a3350;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.comp-table thead tr {
+  background: #142338;
+  border-bottom: 1px solid #1e4976;
+}
+.comp-table th {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #bbb;
+  text-align: left;
+}
+.ct-label-col { width: 180px; }
+.ct-station-col {
+  display: flex; align-items: center; gap: 8px;
+}
+.ct-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+.comp-table td { padding: 10px 16px; font-size: 13px; }
+.ct-even { background: rgba(14,165,233,0.03); }
+.ct-label { color: #666; font-weight: 500; font-size: 12px; }
+.ct-val { color: #ccc; font-weight: 500; }
+
+.comp-table tbody tr { border-bottom: 1px solid #142338; }
+.comp-table tbody tr:hover { background: rgba(14,165,233,0.03); }
+
+/* Chart */
+.sp-chart {
+  background: #0f1d32;
+  border: 1px solid #1a3350;
+  border-radius: 12px;
+  padding: 16px;
+}
+.sp-chart-title { font-size: 12px; font-weight: 600; color: #888; margin-bottom: 12px; }
+
+@media (max-width: 700px) {
+  .ct-label-col { width: 120px; }
+  .comp-table td, .comp-table th { padding: 8px 10px; font-size: 11px; }
+}

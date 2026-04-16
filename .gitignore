@@ -1,132 +1,40 @@
-# Smart Traffic IoT Project
-
-Smart City: Traffic Junction Monitoring & Safety Analytics
-
-## Features Implemented ✅
-
-- [x] 5 sensor types (vehicle count, speed, rain, light, pollution)
-- [x] Configurable frequency & dispatch rates (YAML)
-- [x] 2 simulated junctions (A, B)
-- [x] Virtual fog nodes per junction (FastAPI)
-- [x] Rolling 10-second aggregation
-- [x] Real-time event detection (speeding, congestion, incidents)
-- [x] AWS SQS queues (FIFO, DLQ)
-- [x] Lambda functions (process aggregates, events, API)
-- [x] DynamoDB tables (aggregates, events, KPIs)
-- [x] React dashboard with live charts
-- [x] API Gateway endpoints
-- [x] S3 + CloudFront hosting
-- [x] Terraform IaC (all AWS services)
-- [x] GitHub Actions CI/CD
-- [x] Unit & integration tests
-- [x] Load test (500 events/sec, 30 sec)
-- [x] Failure tests (DLQ, retry logic)
-- [x] Complete documentation (25+ pages)
-- [x] 4-minute demo script
-
-## Project Structure
-
-```
-smart-traffic-iot/
-├── sensors/               # Simulator engine
-├── fog/                  # FastAPI fog node
-├── cloud/lambdas/        # Lambda functions
-├── cloud/terraform/      # IaC
-├── dashboard/            # React UI
-├── tests/               # Test suite
-├── docs/                # Documentation
-├── .github/workflows/   # CI/CD
-└── docker-compose.yml   # Local stack
-```
-
-## Deployment
-
-### Local
-```bash
-docker-compose up
-# Dashboard: ${REACT_APP_DASHBOARD_URL}
-```
-
-### AWS
-```bash
-cd cloud/terraform
-terraform init && terraform apply
-```
-
-## Demo (4 min)
-
-1. Architecture slide (0:30)
-2. Sensor simulation with rush hour (0:45)
-3. Fog node logs & event detection (0:60)
-4. Live dashboard + charts (0:75)
-5. Scalability & CloudWatch metrics (0:30)
-
-See [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
-
-## Documentation
-
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) – Full technical design
-- [API_SPEC.md](docs/API_SPEC.md) – Endpoint specifications
-- [DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) – Demo walkthrough
-- [README.md](README.md) – Quick start guide
-
-## Key Metrics
-
-| Metric | Value |
-|--------|-------|
-| Sensor types | 5 (count, speed, rain, light, pollution) |
-| Junctions | 2 (A, B) |
-| Ingestion rate | 1,000 events/sec (burst) |
-| Fog aggregation | 10-sec rolling windows |
-| Bandwidth reduction | 80% (aggregates vs raw) |
-| Event detection algorithms | 3 (speeding, congestion, incident) |
-| Cloud services | 9 (SQS, Lambda, DynamoDB, API Gateway, S3, CloudFront, IAM, CloudWatch, Terraform) |
-| Lambda functions | 3 (process aggregates, events, API) |
-| DynamoDB tables | 3 (aggregates, events, KPIs) |
-| Dashboard update frequency | 3 seconds |
-| Test coverage | Unit + integration + load + failure |
-
-## Scalability
-
-- Fog: Local analytics, real-time detection
-- SQS: Decouples fog from cloud, absorbs bursts (15,000+ messages)
-- Lambda: Auto-scales to 1000+ concurrent
-- DynamoDB: On-demand billing
-- Dashboard: CloudFront CDN + S3
-
-## Resilience
-
-- Deduplication: 10-sec eventId cache + SQS content dedup
-- Idempotency: Unique keys prevent duplicate processing
-- DLQ: Failed messages quarantined (max 3 retries)
-- Retry: Exponential backoff (1s, 2s, 4s)
-- Monitoring: CloudWatch metrics + logs
-
-## Testing
-
-```bash
-# Unit tests
-pytest tests/test_fog_analytics.py -v
-
-# Integration tests
-pytest tests/test_integration.py -v
-
-# Load test (500 evt/sec)
-bash tests/load_test.sh
-
-# Failure test (DLQ)
-bash tests/dlq_test.sh
-```
-
----
-
-**Date:** February 2025  
-**Assignment:** Fog & Edge Computing (NCI College)  
-**Status:** Production-ready ✅
-
-venv/
+# Python
 __pycache__/
-*.pyc
-node_modules/
-.env.local
+*.py[cod]
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+*.egg
 
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node
+node_modules/
+dashboard/node_modules/
+
+# Runtime data
+fog/spool_data*/
+artifacts/*.log
+artifacts/*.csv
+
+# Secrets
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dashboard/build/

@@ -1,10 +1,11 @@
 {
-  "name": "smart-traffic-dashboard",
-  "version": "1.0.0",
+  "name": "flood-early-warning-dashboard",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
     "recharts": "^2.10.3"
   },
   "scripts": {

@@ -1,0 +1,60 @@
+.rail {
+  width: 64px;
+  min-height: 100vh;
+  background: #0f1d32;
+  border-right: 1px solid #1e3a5f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  z-index: 100;
+  padding: 16px 0;
+}
+.rail-logo { margin-bottom: 32px; }
+.rail-logo svg { width: 36px; height: 36px; }
+
+.rail-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.rail-btn {
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 12px;
+  color: #666;
+  text-decoration: none;
+  transition: all 0.2s;
+  position: relative;
+}
+.rail-btn svg { width: 22px; height: 22px; }
+.rail-btn:hover { background: #1a3350; color: #bbb; }
+.rail-btn.on {
+  background: rgba(14,165,233,0.15);
+  color: #38bdf8;
+  box-shadow: inset 3px 0 0 #0ea5e9;
+}
+.rail-badge {
+  position: absolute;
+  top: 4px; right: 4px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 9px; font-weight: 700;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+
+.rail-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #1e3a5f;
+}
+.status-dot svg { width: 14px; height: 14px; cursor: help; }

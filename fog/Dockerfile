@@ -2,12 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY fog/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy all fog module files
-COPY __init__.py fog_node.py spool.py metrics_collector.py ./fog/
-COPY start.sh .
+COPY common/ ./common/
+COPY fog/__init__.py fog/config.py fog/models.py fog/analytics.py \
+     fog/notifications.py fog/dispatcher.py fog/fog_node.py \
+     fog/spool.py fog/metrics_collector.py ./fog/
 
 EXPOSE 8000
 

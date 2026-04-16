@@ -1,146 +1,163 @@
 ---
-# Sensor Simulator Configuration
+# Flood Sensor Simulator Configuration
+# Real data source: UK Environment Agency Flood Monitoring API
+# Station A: Oxford Botanical Gardens (River Cherwell) — 1490TH
+# Station B: Kings Mill (River Cherwell) — 1491TH
+# Rainfall: Oxford rain gauge — 256230TP
+# API: https://environment.data.gov.uk/flood-monitoring/doc/reference
 
-junctions:
-  - id: "Junction-A"
-    latitude: 53.3426
-    longitude: -6.2543
+stations:
+  - id: "River-Station-A"
+    latitude: 51.750579
+    longitude: -1.24661
+    ea_station: "1490TH"
+    ea_label: "Oxford Botanical Gardens (River Cherwell)"
     sensors:
-      - name: vehicle_count
-        type: "INTEGER"
-        unit: "vehicles/min"
+      - name: water_level
+        type: "FLOAT"
+        unit: "m"
         frequency_hz: 10
         jitter_ms: 50
-        baseline_min: 10
-        baseline_max: 80
-        rush_hour_multiplier: 3.5
-        scenario: "daily_pattern_with_incidents"
-      
-      - name: vehicle_speed
+        baseline_min: 1.0
+        baseline_max: 3.5
+        min_bound: 0.0
+        max_bound: 8.0
+        surge_max: 2.5
+        scenario: "tidal_with_surges"
+
+      - name: flow_rate
         type: "FLOAT"
-        unit: "km/h"
+        unit: "m³/s"
         frequency_hz: 10
         jitter_ms: 100
-        baseline_mean: 50
-        baseline_std: 15
-        min_bound: 0
-        max_bound: 160
-        scenario: "daily_pattern_with_incidents"
-      
-      - name: rain_intensity
+        baseline_mean: 25.0
+        baseline_std: 8.0
+        min_bound: 0.0
+        max_bound: 200.0
+        surge_max: 60.0
+        scenario: "storm_correlated"
+
+      - name: rainfall_intensity
         type: "CATEGORICAL"
         unit: "mm/h"
         frequency_hz: 1
         jitter_ms: 200
-        categories: ["none", "light", "heavy"]
-        baseline_distribution: [0.7, 0.2, 0.1]
-        scenario: "random_weather"
-      
-      - name: ambient_light
+        categories: ["none", "light", "moderate", "heavy"]
+        baseline_distribution: [0.5, 0.25, 0.15, 0.1]
+        scenario: "weather_pattern"
+
+      - name: soil_moisture
         type: "FLOAT"
-        unit: "lux"
-        frequency_hz: 5
+        unit: "%"
+        frequency_hz: 2
         jitter_ms: 150
-        baseline_day: 50000
-        baseline_night: 100
-        scenario: "circadian_pattern"
-      
-      - name: pollution_pm25
+        baseline_mean: 45.0
+        baseline_std: 12.0
+        min_bound: 10.0
+        max_bound: 100.0
+        scenario: "rain_correlated"
+
+      - name: river_turbidity
         type: "FLOAT"
-        unit: "µg/m³"
+        unit: "NTU"
         frequency_hz: 2
         jitter_ms: 200
-        baseline_mean: 25
-        baseline_std: 10
-        min_bound: 5
-        max_bound: 200
-        scenario: "traffic_correlated"
+        baseline_mean: 30.0
+        baseline_std: 15.0
+        min_bound: 0.0
+        max_bound: 500.0
+        scenario: "flow_correlated"
 
-  - id: "Junction-B"
-    latitude: 53.3450
-    longitude: -6.2500
+  - id: "River-Station-B"
+    latitude: 51.756247
+    longitude: -1.238765
+    ea_station: "1491TH"
+    ea_label: "Kings Mill (River Cherwell)"
     sensors:
-      - name: vehicle_count
-        type: "INTEGER"
-        unit: "vehicles/min"
+      - name: water_level
+        type: "FLOAT"
+        unit: "m"
         frequency_hz: 10
         jitter_ms: 50
-        baseline_min: 15
-        baseline_max: 100
-        rush_hour_multiplier: 4.0
-        scenario: "daily_pattern_with_incidents"
-      
-      - name: vehicle_speed
+        baseline_min: 1.5
+        baseline_max: 4.0
+        min_bound: 0.0
+        max_bound: 10.0
+        surge_max: 3.0
+        scenario: "tidal_with_surges"
+
+      - name: flow_rate
         type: "FLOAT"
-        unit: "km/h"
+        unit: "m³/s"
         frequency_hz: 10
         jitter_ms: 100
-        baseline_mean: 45
-        baseline_std: 12
-        min_bound: 0
-        max_bound: 160
-        scenario: "daily_pattern_with_incidents"
-      
-      - name: rain_intensity
+        baseline_mean: 30.0
+        baseline_std: 10.0
+        min_bound: 0.0
+        max_bound: 250.0
+        surge_max: 80.0
+        scenario: "storm_correlated"
+
+      - name: rainfall_intensity
         type: "CATEGORICAL"
         unit: "mm/h"
         frequency_hz: 1
         jitter_ms: 200
-        categories: ["none", "light", "heavy"]
-        baseline_distribution: [0.7, 0.2, 0.1]
-        scenario: "random_weather"
-      
-      - name: ambient_light
+        categories: ["none", "light", "moderate", "heavy"]
+        baseline_distribution: [0.5, 0.25, 0.15, 0.1]
+        scenario: "weather_pattern"
+
+      - name: soil_moisture
         type: "FLOAT"
-        unit: "lux"
-        frequency_hz: 5
+        unit: "%"
+        frequency_hz: 2
         jitter_ms: 150
-        baseline_day: 50000
-        baseline_night: 100
-        scenario: "circadian_pattern"
-      
-      - name: pollution_pm25
+        baseline_mean: 50.0
+        baseline_std: 14.0
+        min_bound: 10.0
+        max_bound: 100.0
+        scenario: "rain_correlated"
+
+      - name: river_turbidity
         type: "FLOAT"
-        unit: "µg/m³"
+        unit: "NTU"
         frequency_hz: 2
         jitter_ms: 200
-        baseline_mean: 30
-        baseline_std: 12
-        min_bound: 5
-        max_bound: 200
-        scenario: "traffic_correlated"
+        baseline_mean: 35.0
+        baseline_std: 18.0
+        min_bound: 0.0
+        max_bound: 500.0
+        scenario: "flow_correlated"
 
-# Incident scenarios
-incidents:
-  - name: "morning_rush_speedup"
-    start_hour: 7
-    duration_minutes: 45
-    junction: "both"
-    effect_on_speed: "reduce_30"  # reduce avg speed by 30%
-    effect_on_count: "increase_200"  # increase by 200%
-  
-  - name: "evening_rush_peak"
-    start_hour: 17
-    duration_minutes: 60
-    junction: "both"
-    effect_on_speed: "reduce_25"
-    effect_on_count: "increase_250"
-  
-  - name: "random_accident_A"
-    probability_per_minute: 0.05  # 5% chance each minute
-    junction: "Junction-A"
-    duration_minutes: 5
-    effect_on_speed: "reduce_50"  # speed drops 50%
-    effect_on_count: "increase_150"
+# Flood scenarios
+scenarios:
+  - name: "afternoon_storm"
+    start_hour: 14
+    duration_minutes: 120
+    station: "both"
+    effect_on_water_level: "increase_50"
+    effect_on_flow_rate: "increase_100"
 
-# Simulation modes
+  - name: "overnight_heavy_rain"
+    start_hour: 2
+    duration_minutes: 180
+    station: "both"
+    effect_on_water_level: "increase_40"
+    effect_on_soil_moisture: "increase_60"
+
+  - name: "flash_flood_event"
+    probability_per_minute: 0.02
+    station: "River-Station-A"
+    duration_minutes: 10
+    effect_on_water_level: "increase_80"
+    effect_on_flow_rate: "increase_200"
+
 simulation:
-  mode: "normal"  # "normal" | "burst_load_test"
-  time_acceleration_factor: 1.0  # 1 = real-time, 60 = 1 hour per minute
-  start_time: "08:00"  # HH:MM
+  mode: "normal"
+  time_acceleration_factor: 1.0
+  start_time: "08:00"
   duration_hours: 24
 
-# Output destination
 output:
   fog_endpoint_a: "http://fog-node-a:8001/ingest"
   fog_endpoint_b: "http://fog-node-b:8002/ingest"
